@@ -1,14 +1,16 @@
 import os
 from pymongo import MongoClient
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 from dotenv import load_dotenv
 
 # Load environment variables (ensure you have a .env file with MONGO_URI)
 load_dotenv()
 
-# 1. Initialize the Embedding Model (Downloads automatically)
-print("Loading AI Model (all-MiniLM-L6-v2)...")
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# 1. Initialize the Embedding Model (FastEmbed / ONNX)
+# This downloads a ~80MB quantized model compatible with Render Free Tier
+print("Loading AI Model (sentence-transformers/all-MiniLM-L6-v2)...")
+model = TextEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+print("AI Model Loaded.")
 
 # 2. Connect to MongoDB Atlas
 mongo_uri = os.getenv("MONGO_URI")
@@ -47,11 +49,12 @@ def process_and_update():
             # 1. Create the text representation
             text_to_embed = serialize_pattern(organ_name, pattern)
             
-            # 2. Generate Vector (List of 768 floats)
-            vector = model.encode(text_to_embed).tolist()
+            # 2. Generate Vector (List of 384 floats for MiniLM)
+            # FastEmbed returns a generator, so we convert to list and take the first item
+            embedding_gen = model.embed([text_to_embed])
+            vector = list(embedding_gen)[0].tolist()
             
             # 3. Save it inside the pattern object
-            # We add a new field 'embedding' to the pattern
             pattern['embedding'] = vector
             updated_patterns.append(pattern)
             total_patterns += 1

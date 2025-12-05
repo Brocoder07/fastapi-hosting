@@ -1,23 +1,28 @@
 from groq import Groq
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 from ..config import settings
 
 class AIHandler:
     def __init__(self):
-        # 1. Initialize Groq (The Brain)
+        # 1. Initialize Groq
         self.groq_client = Groq(api_key=settings.GROQ_API_KEY)
         
-        # 2. Initialize Embeddings (The Translator)
+        # 2. Initialize FastEmbed (Lightweight ONNX)
         print(f"Loading AI Model ({settings.EMBEDDING_MODEL})...")
-        self.embed_model = SentenceTransformer(settings.EMBEDDING_MODEL)
+        # fastembed downloads and caches the quantized model automatically
+        self.embed_model = TextEmbedding(model_name=settings.EMBEDDING_MODEL)
         print("AI Model Loaded.")
 
     def get_embedding(self, text: str) -> list:
-        """Converts text to vector."""
-        return self.embed_model.encode(text).tolist()
+        """Converts text to vector using ONNX."""
+        # FastEmbed expects a list of documents and returns a generator
+        # We wrap 'text' in a list, get the generator, convert to list, take the first item
+        embedding_generator = self.embed_model.embed([text])
+        vector = list(embedding_generator)[0]
+        return vector.tolist() # Convert numpy array to standard list
 
     def generate_answer(self, user_query: str, context: str) -> str:
-        """Sends prompt to Groq/Llama 3."""
+        # ... (This method remains exactly the same as before) ...
         system_instruction = f"""
         You are an expert Clinical Acupuncture Assistant.
         Your goal is to help a practitioner identify the correct Pattern based on the user's query.
@@ -38,10 +43,9 @@ class AIHandler:
                 {"role": "system", "content": system_instruction},
                 {"role": "user", "content": user_query}
             ],
-            model="llama-3.1-8b-instant",
+            model="llama3-8b-8192",
             temperature=0.1,
         )
         return chat_completion.choices[0].message.content
 
-# Singleton Instance (Initialized once when app starts)
 ai_service = AIHandler()
