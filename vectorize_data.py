@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 1. Initialize the Embedding Model (Downloads automatically)
-print("Loading AI Model (all-mpnet-base-v2)...")
-model = SentenceTransformer('all-mpnet-base-v2')
+print("Loading AI Model (all-MiniLM-L6-v2)...")
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # 2. Connect to MongoDB Atlas
 mongo_uri = os.getenv("MONGO_URI")

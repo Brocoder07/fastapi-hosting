@@ -10,6 +10,6 @@ class Settings:
     COLLECTION_NAME: str = "accupuncture_data"
     BOOKMARKS_COLLECTION: str = "user_bookmarks"
     HISTORY_COLLECTION: str = "chat_history"
-    EMBEDDING_MODEL: str = "all-mpnet-base-v2"
+    EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
 
 settings = Settings()
