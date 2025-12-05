@@ -1,0 +1,18 @@
+fastapi==0.114.0
+uvicorn==0.30.6
+pydantic==2.9.1
+motor==3.6.0
+pymongo==4.9.1
+groq
+sentence-transformers
+numpy
+python-dotenv==1.0.1
+certifi==2023.11.17
+dnspython==2.6.1
+requests==2.31.0
+httpx==0.27.2
+email_validator==2.2.0
+python-multipart==0.0.9
+# Performance extras (Linux/Render only, skipped on Windows)
+uvloop; sys_platform != 'win32'
+httptools; sys_platform != 'win32'
